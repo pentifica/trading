@@ -24,7 +24,9 @@
 
 namespace pentifica::trd::exch {
 /// @brief Identifies the type of the order
-enum OrderSide:char {BUY = 'B', SELL = 'S', UNKNOWN = 'U'};
+enum class OrderSide:char {BUY = 'B', SELL = 'S', UNKNOWN = 'U'};
+enum class OrderType:char {MARKET = 'M', LIMIT = 'L', UNKNOWN = 'U'};
+enum class OrderTimeInForce:char {IOC = 'I', DAY = 'D', GTC = 'G', UNKNOWN = 'U'};
 /// @brief  Defines the minimum information to describe a generic order
 /// @tparam T   Specifies the data type of the price associated with the order.
 template<typename T>
@@ -41,13 +43,15 @@ public:
     /// @param quantity 
     /// @param id 
     /// @param time 
-    explicit Order(OrderSide side, T price, std::size_t quantity, std::string id,
-        TimePoint time = Clock::now()) :
+    explicit Order(OrderSide side, OrderType type, OrderTimeInForce tif, T price,
+        std::size_t quantity, std::string id, TimePoint time = Clock::now()) :
         price_{price},
         quantity_{quantity},
         time_{time},
+        id_{std::move(id)},
         side_{side},
-        id_{std::move(id)} {}
+        type_{type},
+        tif_{tif} {}
     Order(Order const&) = default;
     Order(Order&&) = default;
     Order& operator=(Order const&) = default;
@@ -57,12 +61,16 @@ public:
     void Quantity(size_t quantity) { quantity_ = quantity; }
     void Time(TimePoint time) { time_ = time; }
     void Side(OrderSide side) { side_ = side; }
+    void Type(OrderType type) { type_ = type; }
+    void TIF(OrderTimeInForce tif) { tif_ = tif; }
 
     auto const& Id() const { return id_; }
     auto Price() const { return price_; }
     auto Quantity() const { return quantity_; }
     auto Time() const { return time_; }
     auto Side() const { return side_; }
+    auto Type() const { return type_; }
+    auto TIF() const { return tif_; }
 
 private:
     T price_{};
@@ -70,5 +78,7 @@ private:
     TimePoint time_{};
     std::string id_;
     OrderSide side_{OrderSide::UNKNOWN};
+    OrderType type_{OrderType::UNKNOWN};
+    OrderTimeInForce tif_{OrderTimeInForce::UNKNOWN};
 };
 }
