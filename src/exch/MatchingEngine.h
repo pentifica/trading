@@ -123,27 +123,14 @@ private:
             });
         if(index != rung.end()) rung.erase(index);
     }
-    /// @brief Helper class to finalize the fill process
-    /// @tparam Ladder Type of ladder where the order will be placed
-    template<typename Ladder>
-    struct FillFinalize {
-        explicit FillFinalize(OrderBook& book, OrderRef& order, Ladder& ladder) :
-            book_(book), order_(order), ladder_(ladder) {}
-        ~FillFinalize() {
-            if((order_->Type() == OrderType::MARKET)
-                || (order_->TIF() == OrderTimeInForce::IOC)
-                || (order_->Quantity() == 0)) return;
-            ladder_[order_->Price()].push_back(order_);
-            book_[order_->Id()] = order_;
-        }
-        FillFinalize(FillFinalize const&) = delete;
-        FillFinalize(FillFinalize&&) = delete;
-        FillFinalize operator=(FillFinalize const&) = delete;
-        FillFinalize operator=(FillFinalize&&) = delete;
+    /// @brief RAII helper based on a funtion
+    /// @tparam Action The function type
+    template<typename Action>
+    struct RAII {
+        explicit RAII(Action action) : action_(action) {}
+        ~RAII() { action_(); }
     private:
-        OrderBook& book_;
-        OrderRef& order_;
-        Ladder& ladder_;
+        Action action_;
     };
     /// @brief Fill an order from existing orders
     /// @tparam Compare Price ladder containing opposing orders
@@ -153,7 +140,16 @@ private:
     /// @param store Where to store the unfilled order
     template<typename Compare, typename Store>
     void Fill(OrderRef& order, Compare& compare, Store& store) {
-        FillFinalize wrapup {order_book_, order, store};
+
+        auto wrapup = [this, &order, &ladder=store]() {
+            if((order->Type() == OrderType::MARKET)
+                || (order->TIF() == OrderTimeInForce::IOC)
+                || (order->Quantity() == 0)) return;
+            ladder[order->Price()].push_back(order);
+            order_book_[order->Id()] = order;
+        };
+
+        RAII finally{wrapup};
 
         if(compare.empty()) return;
 
