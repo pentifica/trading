@@ -8,6 +8,7 @@ target_sources(trading
 )
 
 add_subdirectory(exch)
+add_subdirectory(parser)
 
 target_include_directories(
     trading

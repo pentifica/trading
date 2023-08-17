@@ -17,9 +17,11 @@ target_link_libraries(test_trading
 )
 
 add_subdirectory(exch)
+add_subdirectory(parser)
 
 target_include_directories(test_trading
     PUBLIC
         "${PROJECT_BINARY_DIR}/../src"
         "${PROJECT_BINARY_DIR}/../src/exch"
+        "${PROJECT_BINARY_DIR}/../src/parser"
 )

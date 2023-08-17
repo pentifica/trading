@@ -31,6 +31,8 @@
 #include    <iostream>
 namespace pentifica::trd::exch {
 
+/// @brief  Encapsulate information related to a trade signal
+/// @tparam OrderDef Order definition
 template<typename OrderDef>
 struct EngineOnTrade {
     using OrderRef = std::shared_ptr<OrderDef>;
@@ -38,16 +40,28 @@ struct EngineOnTrade {
     OrderRef existing_order_;
     std::size_t quantity_;
 };
+/// @brief Encapsulate information related to a cancel signal
+/// @tparam OrderDef Order definition
 template<typename OrderDef>
 struct EngineOnCancel {
     using OrderRef = std::shared_ptr<OrderDef>;
     OrderRef order_;
 };
+/// @brief Encapsualte information relted to a revise signal
+/// @tparam OrderDef Order definition
 template<typename OrderDef>
 struct EngineOnRevise {
     using OrderRef = std::shared_ptr<OrderDef>;
     OrderRef order_;
 };
+/// @brief A simple matching engine that matches orders by price then time.
+/// @tparam OrderDef The order type
+/// @tparam Callback Provides handling for callback notification. Callbacks are
+///                  based on operator() overloading with a single discriminator
+///                  argument. Currently defined discriminator arguments are:
+///                     - EngineOnTrade
+///                     - EngineOnCancel
+///                     - EngineOnRevise
 template<typename OrderDef, typename Callback>
 class MatchingEngine {
 public:
