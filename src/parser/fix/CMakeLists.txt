@@ -1,6 +1,10 @@
 target_sources(trading
     PRIVATE
         Tags.h
+        Utility.h
+        Utility.cpp
         Encode.h
         Encode.cpp
+        Parser.h
+        Parser.cpp
 )

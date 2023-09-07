@@ -18,21 +18,11 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 /// SOFTWARE.
 #include    "Encode.h"
+#include    "Utility.h"
 
 #include    <stdexcept>
 #include    <cmath>
 #include    <ctime>
-
-namespace {
-    using namespace pentifica::trd::fix;
-    
-    char const* ToString(Version version) {
-        switch(version) {
-            case Version::_4_2: return "FIX.4.2";
-            default:    throw(std::out_of_range("Unrecognized FIX version"));
-        }
-    }
-}
 
 namespace pentifica::trd::fix {
     Encode::Encode(MsgType msg_type, Version version, Byte* begin, Byte* end) :
@@ -40,7 +30,7 @@ namespace pentifica::trd::fix {
         end_{end},
         next_{begin}
     {
-        Append(Tag::BeginString, ToString(version));
+        Append(Tag::BeginString, VersionMapping::Map(version));
         Append(Tag::BodyLength, TagWidth::BodyLength, body_length_field_);
         body_length_field_end_ = next_;
     

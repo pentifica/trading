@@ -23,8 +23,9 @@
 
 namespace pentifica::trd::fix {
 /// @brief Identifies the versions of the FIX protocol currently supported
-enum class Version {
+enum class Version:uint32_t {
     _4_2,
+    Unknown
 };
 
     using Byte = unsigned char;
