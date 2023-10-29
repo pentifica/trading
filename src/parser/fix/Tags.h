@@ -20,15 +20,17 @@
 /// SOFTWARE.
 #include    <cstdint>
 #include    <cstddef>
+#include    <memory_resource>
 
 namespace pentifica::trd::fix {
 /// @brief Identifies the versions of the FIX protocol currently supported
 enum class Version:uint32_t {
     _4_2,
+    _4_4,
     Unknown
 };
 
-    using Byte = unsigned char;
+    using Byte = unsigned char;    
     /// @brief Identifies the tags for fields in a message
     enum class Tag:uint32_t {
         Account = 1,
@@ -159,6 +161,7 @@ enum class Version:uint32_t {
         ApplicationSystemVendor = 10,
         ApplicationSystemVersion = 10,
         BodyLength = 6,
+        CheckSum = 3,
         ClOrdID = 20,
         CorrelationClOrdID = 5,
         CtiCode = 1,

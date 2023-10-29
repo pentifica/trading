@@ -9,9 +9,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 FetchContent_MakeAvailable(googletest)
 add_library(GTest::GTest INTERFACE IMPORTED)
+
 target_link_libraries(GTest::GTest INTERFACE gtest_main)
 
 add_executable(test_trading "")
+
+link_directories(test_trading
+        "${PROJECT_BINARY_DIR/}../src"
+)
 
 target_link_libraries(test_trading
     PRIVATE

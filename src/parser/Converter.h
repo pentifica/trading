@@ -28,6 +28,11 @@
 #include    <cstdint>
 
 namespace pentifica::trd {
+    /// @brief  Converts a string containing a numeric value to the
+    ///         numeric value
+    /// @tparam T   The numeric value type
+    /// @param view A view of the string
+    /// @return The numeric value
     template<typename T>
     T numeric_converter(std::string_view const& view) {
         constexpr T mult{10};
@@ -37,6 +42,11 @@ namespace pentifica::trd {
         }
         return value;
     }
+    /// @brief  Converts a string containing a decimal value to the
+    ///         decimal value
+    /// @tparam T   The decimal value type
+    /// @param view A view of the decimal value string
+    /// @return The decimal value
     template<typename T>
     T real_converter(std::string_view const& view) {
         auto begin = view.begin();
@@ -113,8 +123,10 @@ namespace pentifica::trd {
 
         return {};
     }
+#if 0
     template<>
     std::string translate<std::string>(std::string_view const& view) {
         return std::string(view.begin(), view.end());
     }
+#endif
 }

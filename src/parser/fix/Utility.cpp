@@ -21,13 +21,16 @@
 
 namespace pentifica::trd::fix {
     std::string const VersionMapping::FIX_4_2{"FIX.4.2"};
+    std::string const VersionMapping::FIX_4_4{"FIX.4.4"};
     std::string const VersionMapping::unknown{"UNKNOWN"};
     std::unordered_map<std::string, Version> const VersionMapping::name_to_version = {
         {FIX_4_2, Version::_4_2},
+        {FIX_4_4, Version::_4_4},
         {unknown, Version::Unknown},
     };
     std::unordered_map<Version, std::string> const VersionMapping::version_to_name = {
         {Version::_4_2, FIX_4_2},
+        {Version::_4_4, FIX_4_4},
         {Version::Unknown, unknown},
     };
 }

@@ -44,20 +44,30 @@ namespace pentifica::trd::fix {
 
     class Parser {
     public:
-        explicit Parser(Byte const* begin, Byte const* end, TagFinder& tags);
-        using TagInfo = std::tuple<Tag, Byte const*, Byte const*>;
+        /// @brief Initialize the parser with the message to parse
+        /// @param begin    Start of message
+        /// @param end      End of message + 1
+        explicit Parser(Byte const* begin, Byte const* end);
+        using TagInfo = std::tuple<Tag, std::string_view>;
         using ParsedTag = std::optional<TagInfo>;
+        /// @brief Returns the next tag in the message
+        /// @return     The next tage in the message
         ParsedTag NextTag();
+        auto GetVersion() const {return version_; }
+        auto GetBodyLength() const { return body_length_; }
+        auto GetChecksum() const { return checksum_; }
 
     private:
+        /// @brief  Parse and validate the BEGIN field
         void BeginString();
+        /// @brief  Parse and validate the BODY LENGTH field
         void BodyLength();
+        /// @brief  Parse and validate the CHECKSUM field
         void Checksum();
 
     private:
-        Byte const* begin_{};
-        Byte const* const end_;
-        TagFinder& tags_;
+        Byte const* const begin_{};
+        Byte const* const end_{};
         Byte const* next_{};
         std::uint32_t checksum_{};
         Version version_{Version::Unknown};

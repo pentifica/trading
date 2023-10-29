@@ -19,32 +19,71 @@
 /// SOFTWARE.
 #include    "Parser.h"
 #include    "Utility.h"
+#include    <parser/Converter.h>
 
 #include    <cctype>
 
+namespace {
+    template<typename T, typename L>
+    auto make_sv(T const* start, L len) {
+        return std::string_view(reinterpret_cast<char const*>(start),
+            static_cast<std::string_view::size_type>(len));
+    }
+}
+
 namespace pentifica::trd::fix {
-    Parser::Parser(Byte const* begin, Byte const* end, TagFinder& tags) :
+    //  ================================================================
+    //
+    Parser::Parser(Byte const* begin, Byte const* end) :
         begin_{begin},
         end_{end},
-        tags_{tags}
+        next_(begin)
     {
         if(end <= begin) throw ParseIncomplete("Empty FIX message");
         BeginString();
         BodyLength();
         Checksum();
     }
-
+    //  ================================================================
+    //
     void
     Parser::BeginString() {
         auto const& next_tag{NextTag()};
+        if(!next_tag) throw ParseSyntax("Expected BeginString");
 
-        auto const [tag, begin, end] = next_tag.value();
-
+        auto const& [tag, view] = next_tag.value();
         if(tag != Tag::BeginString) throw ParseSyntax("Expected BeginString");
 
-        version_ = VersionMapping::Map(begin, end);
+        version_ = VersionMapping::Map(view);
     }
+    //  ================================================================
+    //
+    void
+    Parser::BodyLength() {
+        auto const& next_tag{NextTag()};
+        if(!next_tag) throw ParseSyntax("Expected BodyLength");
 
+        auto const& [tag, view] = next_tag.value();
+        if(tag != Tag::BodyLength) throw ParseSyntax("Expected BodyLength");
+
+        //body_length_ = translate<decltype(body_length_)>(view);
+
+        auto computed_end = next_ + body_length_ + 4 + static_cast<decltype(body_length_)>(TagWidth::CheckSum);
+        if(computed_end != end_) throw ParseSyntax("Incorrect BodyLength");
+    }
+    //  ================================================================
+    //
+    void
+    Parser::Checksum() {
+        auto checksum_start = next_ + body_length_;
+        checksum_ = translate<decltype(checksum_)>(make_sv(checksum_start + 3, TagWidth::CheckSum));
+
+        auto computed_checksum = std::accumulate(next_, checksum_start,
+            static_cast<decltype(checksum_)>(0)) % 256;
+        if(computed_checksum != checksum_) throw ParseSyntax("Invalid checksum");
+    }
+    //  ================================================================
+    //
     Parser::ParsedTag
     Parser::NextTag() {
         if(next_ == end_) return ParsedTag();
@@ -70,10 +109,10 @@ namespace pentifica::trd::fix {
 
         checksum_ += term;
 
-        auto begin = ++next_;
+        auto const begin = ++next_;
 
         for(; next_ != end_ && *next_ != SOH; ++next_)
-            checksum_ += static_cast<uint32_t>(*next_);
+            checksum_ += static_cast<decltype(checksum_)>(*next_);
 
         if(next_ == end_) throw ParseIncomplete("Missing SOH");
 
@@ -82,9 +121,9 @@ namespace pentifica::trd::fix {
         else
             checksum_++;
 
-        auto end = next_;
+        auto count = (next_ - begin);
         ++next_;
 
-        return {{static_cast<Tag>(tag), begin, end}};
+        return std::make_tuple(static_cast<Tag>(tag), make_sv(begin, count));
     }
 }

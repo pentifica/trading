@@ -31,13 +31,16 @@ namespace pentifica::trd::fix {
             auto const entry = version_to_name.find(version);
             return (entry != version_to_name.end()) ? entry->second : unknown;
         }
-        static Version Map(Byte const* begin, Byte const* end) {
-            std::string const view(reinterpret_cast<char const*>(begin), end - begin);
+        static Version Map(std::string const& view) {
             auto const entry = name_to_version.find(view);
             return (entry != name_to_version.end()) ? entry->second : Version::Unknown;
         }
+        static Version Map(std::string_view view) {
+            return Map(std::string{view});
+        }
     private:
         static std::string const FIX_4_2;
+        static std::string const FIX_4_4;
         static std::string const unknown;
         static std::unordered_map<std::string, Version> const name_to_version;
         static std::unordered_map<Version, std::string> const version_to_name;
