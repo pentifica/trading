@@ -39,7 +39,7 @@ namespace pentifica::trd::fix {
         end_{end},
         next_(begin)
     {
-        if(end <= begin) throw ParseIncomplete("Empty FIX message");
+        if(end <= begin) throw ParseSyntax("Empty FIX message");
         BeginString();
         BodyLength();
         Checksum();
@@ -52,7 +52,7 @@ namespace pentifica::trd::fix {
         if(!next_tag) throw ParseSyntax("Expected BeginString");
 
         auto const& [tag, view] = next_tag.value();
-        if(tag != Tag::BeginString) throw ParseSyntax("Expected BeginString");
+        if(tag != Tag::BeginString) throw ParseSyntax("Tag not BeginString");
 
         version_ = VersionMapping::Map(view);
     }
