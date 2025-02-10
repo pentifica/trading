@@ -23,6 +23,7 @@
 #include    <stdexcept>
 #include    <cmath>
 #include    <ctime>
+#include    <string>
 
 namespace pentifica::trd::fix {
     Encode::Encode(MsgType msg_type, Version version, Byte* begin, Byte* end) :

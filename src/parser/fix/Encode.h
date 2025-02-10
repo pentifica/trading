@@ -25,6 +25,7 @@
 #include    <ctime>
 #include    <algorithm>
 #include    <type_traits>
+#include    <string>
 
 #include    <sys/time.h>
 
