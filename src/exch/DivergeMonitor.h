@@ -1,20 +1,30 @@
 #pragma once
 
-#include "Stock.h"
+#include "StockPair.h"
 
-#include <string>
-#include <memory>
 #include <unordered_map>
 #include <list>
+#include <functional>
+
+namespace pentifica::trd::exch { class DivergeMonitor; }
+std::ostream& operator<<(std::ostream&, pentifica::trd::exch::DivergeMonitor const&);
 
 namespace pentifica::trd::exch {
 
 /// @brief A stock threshold divergence monitor
 class DivergeMonitor {
 public:
+    //  friend(s)
+    friend std::ostream& operator<<(std::ostream&, DivergeMonitor const&);
+    //  definitions
+    using OnNotify = std::function<void(Stock const& one, Stock const& two)>;
+    using StockPtr = std::shared_ptr<Stock>;
+    using PairPtr = std::shared_ptr<StockPair>;
+    using StockPairings = std::list<PairPtr>;
+    using MonitoredStock = std::pair<StockPtr, StockPairings>;
     /// @brief Initialize a stock monitor
     /// @param threshold 
-    explicit DivergeMonitor(int threshold);
+    explicit DivergeMonitor(int threshold, OnNotify on_notify);
     /// @brief Start monitoring the pair of stocks identified
     /// @param stock_one The first stock to monitor
     /// @param stock_two The second stock to monitor
@@ -23,38 +33,20 @@ public:
     /// @param name 
     /// @param price 
     void Update(std::string const& name, int price);
-    /// @brief Identifies a stock pair to be monitored
-    class StockPair {
-    public:
-        using StockPtr = std::shared_ptr<Stock>;
-        /// @brief Prepare am instance
-        /// @param stock_one 
-        /// @param stock_two 
-        explicit StockPair(StockPtr stock_one, StockPtr stock_two);
-        /// @brief Indicates if the stock prices have diverged
-        /// @param threshold Threshold for divergence
-        /// @return 
-        bool Diverged(int const threshold);
-        Stock const& StockOne() const { return *stock_one_; }
-        Stock const& StockTwo() const { return *stock_two_; }
-
-    private:
-        StockPtr stock_one_;
-        StockPtr stock_two_;
-    };
+    /// @brief Returns a list of stocks the names stock is paired with
+    /// @param name The name of the stock to lookup
+    /// @return A, possibly empty, list of pairings involving the named stock
+    StockPairings const& GetStockPairings(std::string const& name) const;
 
 private:
-    /// @brief Send a notification fo the stocks that have diverged
-    /// @param stock_one 
-    /// @param stock_two 
-    void Notify(Stock const& stock_one, Stock const& stock_two);
+    /// @brief Notify of a threshold divergence
+    /// @param name Name of the stock whose price changed
+    /// @param pair The stock pair contianing this stock
     void Notify(std::string const& name, StockPair const& pair);
-
     /// @brief The threshold for stock divergence
-    int const threshold_;
-    using StockPtr = std::shared_ptr<Stock>;
-    using PairPtr = std::shared_ptr<StockPair>;
-    using MonitoredStock = std::pair<StockPtr, std::list<PairPtr>>;
+    int const threshold_{};
+    /// @brief Notifcation callback
+    OnNotify on_notify_{};
     /// @brief Lookup for monitored stocks
     std::unordered_map<std::string, MonitoredStock> stocks_;
 };

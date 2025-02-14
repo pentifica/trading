@@ -4,6 +4,8 @@ target_sources(trading
         DivergeMonitor.cpp
         Order.h
         Stock.h
+        StockPair.h
+        StockPair.cpp
 )
 
 set_target_properties(trading
