@@ -7,7 +7,11 @@
 #include <functional>
 
 namespace pentifica::trd::exch { class DivergeMonitor; }
-std::ostream& operator<<(std::ostream&, pentifica::trd::exch::DivergeMonitor const&);
+/// @brief Stream state of @ref DivergeMonitor
+/// @param  os  Where to stream the the state
+/// @param  state   The state to stream
+/// @return The stream provided
+std::ostream& operator<<(std::ostream& os, pentifica::trd::exch::DivergeMonitor const& state);
 
 namespace pentifica::trd::exch {
 
